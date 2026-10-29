@@ -5,7 +5,7 @@ services:
     name: paper-trading
     runtime: docker
     region: frankfurt
-    plan: starter            # le plan free s'endort après 15 min : le moteur d'ordres s'arrêterait
+    plan: free               # ESSAI : s'endort après 15 min sans visite, donc les ordres en attente ne s'exécutent plus. Pour un usage réel : plan: starter
     dockerfilePath: ./Dockerfile
     healthCheckPath: /healthz
     numInstances: 1          # ne jamais augmenter : deux instances exécuteraient chaque ordre deux fois
@@ -28,6 +28,6 @@ services:
 databases:
   - name: paper-trading-db
     region: frankfurt
-    plan: basic-256mb        # le plan free expire après 30 jours
+    plan: free               # ESSAI : la base gratuite est supprimée après 30 jours. Pour un usage réel : plan: basic-256mb
     databaseName: papertrading
     ipAllowList: []          # base joignable uniquement depuis les services Render (pas d'accès public)
