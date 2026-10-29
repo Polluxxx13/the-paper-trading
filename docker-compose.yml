@@ -1,0 +1,36 @@
+# Dev local / Synology (Container Manager -> Projet). Sur Render, utiliser render.yaml.
+# Démarrage : cp .env.example .env  (puis éditer)  ;  docker compose up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: papertrading
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?définir DB_PASSWORD dans .env}
+      POSTGRES_DB: papertrading
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U papertrading"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://papertrading:${DB_PASSWORD}@db:5432/papertrading
+      APP_PASSWORD: ${APP_PASSWORD:?définir APP_PASSWORD dans .env}
+      JWT_SECRET: ${JWT_SECRET:?définir JWT_SECRET dans .env}
+      TZ: Europe/Zurich
+      NODE_ENV: production
+      # HTTP sur le réseau local : cookie non "Secure". Passer à "true" derrière un proxy HTTPS (voir README).
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+volumes:
+  pgdata:

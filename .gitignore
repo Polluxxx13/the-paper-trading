@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+
+.build-*
+tests/.build-*
+
+scripts-demo.js
+.claude/
